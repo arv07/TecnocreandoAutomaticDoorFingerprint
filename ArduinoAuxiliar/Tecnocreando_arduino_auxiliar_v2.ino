@@ -9,7 +9,7 @@ PN532 nfc(pn532i2c);
 //#define PN532_RESET (3)
 //#include <Adafruit_PN532.h>
 //Adafruit_PN532 nfc(PN532_IRQ, PN532_RESET);
-
+//Comentario
 #define WHITE_LED 3
 #define GREEN_LED 5
 #define RED_LED 4
