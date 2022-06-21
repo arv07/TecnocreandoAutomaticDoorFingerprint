@@ -11,7 +11,9 @@
 
 
 #include <Adafruit_Fingerprint.h>
-
+#define WHITE_LED 4
+#define GREEN_LED 5
+#define RED_LED 6
 #if (defined(__AVR__) || defined(ESP8266)) && !defined(__AVR_ATmega2560__)
 // For UNO and others without hardware serial, we must use software serial...
 // pin #2 is IN from sensor (GREEN wire)
@@ -31,6 +33,7 @@ int voidPosition = 0;
 uint8_t positionToStore;
 uint8_t id;
 int limitFingerprint = 10;
+String fingerprintId = "";
 
 Adafruit_Fingerprint finger = Adafruit_Fingerprint(&mySerial);
 
@@ -321,24 +324,24 @@ uint8_t getFingerprintEnroll() {
 }
 
 
-uint8_t getFingerprintID() {
+uint8_t validateId() {
   
   uint8_t p = finger.getImage();
   switch (p) {
     case FINGERPRINT_OK:
-      Serial.println("Image taken");
+      //Serial.println("Image taken");
       break;
     case FINGERPRINT_NOFINGER:
       //Serial.println("No finger detected");
       return p;
     case FINGERPRINT_PACKETRECIEVEERR:
-      Serial.println("Communication error");
+      //Serial.println("Communication error");
       return p;
     case FINGERPRINT_IMAGEFAIL: 
-      Serial.println("Imaging error");
+      //Serial.println("Imaging error");
       return p;
     default:
-      Serial.println("Unknown error");
+      //Serial.println("Unknown error");
       return p;
   }
 
@@ -348,51 +351,65 @@ uint8_t getFingerprintID() {
     Serial.println("No finger print");  
   }*/
 
-  
+  digitalWrite(WHITE_LED, HIGH);  
   delay(2000);
   
   p = finger.image2Tz();
   
   switch (p) {
     case FINGERPRINT_OK:
-      Serial.println("Image converted");
+      //Serial.println("Image converted");
       break;
     case FINGERPRINT_IMAGEMESS:
-      Serial.println("Image too messy");
+      //Serial.println("Image too messy");
       return p;
     case FINGERPRINT_PACKETRECIEVEERR:
-      Serial.println("Communication error");
+      //Serial.println("Communication error");
       return p;
     case FINGERPRINT_FEATUREFAIL:
-      Serial.println("Could not find fingerprint features");
+      //Serial.println("Could not find fingerprint features");
       return p;
     case FINGERPRINT_INVALIDIMAGE:
-      Serial.println("Could not find fingerprint features");
+      //Serial.println("Could not find fingerprint features");
       return p;
     default:
-      Serial.println("Unknown error");
+      //Serial.println("Unknown error");
       return p;
   }
 
   // OK converted!
   p = finger.fingerSearch();
   if (p == FINGERPRINT_OK) {
-    Serial.println("Found a print match!");
+    //Serial.println("Found a print match!");
+    fingerprintId = String(finger.fingerID);
+    String val = "Valor ID: " + fingerprintId; 
+    
+    //Send data to NodeMCU
+    Serial.println(fingerprintId);
+    
+    //Serial.println(val);
+    //Serial.println(finger.fingerID);
   } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
-    Serial.println("Communication error");
+    //Serial.println("Communication error");
     return p;
   } else if (p == FINGERPRINT_NOTFOUND) {
-    Serial.println("Did not find a match");
+    //Serial.println("Did not find a match");
+    
+    //Send data to NodeMCU
+    //NOT FOUND = 7
+    Serial.println("NOT_FOUND");
+    
     return p;
   } else {
-    Serial.println("Unknown error");
+    //Serial.println("Unknown error");
     return p;
   }
 
   // found a match!
-  Serial.print("Found ID #"); Serial.print(finger.fingerID);
-  Serial.print(" with confidence of "); Serial.println(finger.confidence);
-  
+  //Serial.print("Found ID #"); Serial.print(finger.fingerID);
+  //Serial.print(" with confidence of "); Serial.println(finger.confidence);
+ 
+  digitalWrite(WHITE_LED, LOW);
   //return finger.fingerID;
   return true;
 }
@@ -441,7 +458,7 @@ void loop()
     }
     else if(opt == 3)
     {
-      while(! getFingerprintID() );
+      //while(! getFingerprintID() );
     }
     else if(opt == 4)
     {
@@ -455,7 +472,7 @@ void loop()
  
 }
 
-getFingerprintID();
+validateId();
 delay(50);
   
 }
