@@ -43,21 +43,24 @@ void setup()
 {
   while (!Serial);
   Serial.begin(9600);
-  Serial.println("Fingerprint template extractor");
+  //Serial.println("Fingerprint template extractor");
 
   // set the data rate for the sensor serial port
   finger.begin(57600);
 
   if (finger.verifyPassword()) {
-    Serial.println("Found fingerprint sensor!");
+    //Serial.println("Found fingerprint sensor!");
   } else {
-    Serial.println("Did not find fingerprint sensor :(");
+    //Serial.println("Did not find fingerprint sensor :(");
     while (1);
   }
   // Try to get the templates for fingers 1 through 10
   /*for (int finger = 1; finger < 3; finger++) {
     downloadFingerprintTemplate(finger);
   }*/
+  pinMode(WHITE_LED, OUTPUT);
+  pinMode(GREEN_LED, OUTPUT);
+  pinMode(RED_LED, OUTPUT);
   
 }
 
@@ -385,7 +388,10 @@ uint8_t validateId() {
     String val = "Valor ID: " + fingerprintId; 
     
     //Send data to NodeMCU
-    Serial.println(fingerprintId);
+    //Serial.println(fingerprintId);
+    positionToStore = readnumber(5);
+    
+    Serial.println(positionToStore);
     
     //Serial.println(val);
     //Serial.println(finger.fingerID);
@@ -397,7 +403,7 @@ uint8_t validateId() {
     
     //Send data to NodeMCU
     //NOT FOUND = 7
-    Serial.println("NOT_FOUND");
+    //Serial.println("NOT_FOUND");
     
     return p;
   } else {
@@ -409,7 +415,7 @@ uint8_t validateId() {
   //Serial.print("Found ID #"); Serial.print(finger.fingerID);
   //Serial.print(" with confidence of "); Serial.println(finger.confidence);
  
-  digitalWrite(WHITE_LED, LOW);
+  //digitalWrite(WHITE_LED, LOW);
   //return finger.fingerID;
   return true;
 }
@@ -424,7 +430,9 @@ void loop()
     downloadFingerprintTemplate(finger);
   }
     }*/
-   if(Serial.available() > 0)
+int opt = 0;  
+ 
+  if(Serial.available() > 0)
   {
     String opcion = "";
    
@@ -433,44 +441,79 @@ void loop()
     opt = opcion.toInt();
     //opt = opt+"2";
     //Serial.println(opcion.length());
-    Serial.println(opt);
+    //Serial.println(opt);
 
+    //Serial.println(opcion);
+    str_len = opcion.length() + 1;
+    //Serial.println(str_len);
+ 
+    char url_t[str_len];
+    opcion.toCharArray(url_t, str_len);
+   
+    //Serial.write(url_t);
     if(opt == 5)//Card was validated successful
     {  
-        Serial.println("Mensaje");
-        for (int finger = 1; finger < 6; finger++) {
-          downloadFingerprintTemplate(finger);
-        }
+        digitalWrite(GREEN_LED, HIGH);
+        delay(500);
+        digitalWrite(GREEN_LED, LOW);
+        opt = 0;
        
     }
-    else if(opt == 1)
+    else if(opt == 6)//Card is invalid
     {
-      
-      Serial.println("Mensaje");
-        for (int finger = 1; finger <= limitFingerprint; finger++) {
-          getTemplate(finger,finger);
-        }
-      
+      digitalWrite(RED_LED, HIGH);
+      delay(500);
+      digitalWrite(RED_LED, LOW);
+      opt = 0;
     }
-    else if(opt == 2)
+    else if(opt == 8)//
     {
-      while (!  getFingerprintEnroll() );
+      digitalWrite(GREEN_LED, HIGH);
+      opt = 0;
     }
-    else if(opt == 3)
+    else if(opt == 7)
     {
-      //while(! getFingerprintID() );
+      digitalWrite(GREEN_LED, LOW);
+      opt = 0;
     }
-    else if(opt == 4)
+    else if(opt == 9)//Conrim card was add
     {
-      Serial.print("Void Position: "); Serial.println(positionToStore);
+      digitalWrite(GREEN_LED, HIGH);
+      delay(500);
+      digitalWrite(GREEN_LED, LOW);
+      delay(500);
+      digitalWrite(GREEN_LED, HIGH);
+      delay(500);
+      digitalWrite(GREEN_LED, LOW);
+      opt = 0;
+    }
+    else if(opt == 10)//Conrim card wasn't add
+    {
+      digitalWrite(RED_LED, HIGH);
+      delay(500);
+      digitalWrite(RED_LED, LOW);
+      delay(500);
+      digitalWrite(RED_LED, HIGH);
+      delay(500);
+      digitalWrite(RED_LED, LOW);
+      opt = 0;
+    }
+    else if(opt == 11)//Button lock pressed, waiting for card to validate and lock
+    {
+      digitalWrite(RED_LED, HIGH);
+      opt = 0;
+    }
+    else if(opt == 12)//TURN OFF waiting for card to validate and lock
+    {
+      digitalWrite(RED_LED, LOW);
+      opt = 0;
     }
   else
   {
     /*Serial.println(opcion);
     Serial.println("Invalido");*/
   }
- 
-}
+ }
 
 validateId();
 delay(50);
