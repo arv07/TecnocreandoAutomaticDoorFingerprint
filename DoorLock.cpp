@@ -26,7 +26,7 @@ void openDoor(String validation)
   {
     
     //Serial.println(validation);
-    Serial.println("5");//Green Led on Auxiliar
+    //Serial.println("5");//Green Led on Auxiliar
     ServoMotorDoorLock.attach(pinDoorLockServo);
     ServoMotorDoorLock.write(90);
     delay(1000); 
@@ -38,7 +38,7 @@ void openDoor(String validation)
   else if(validation == "Card does not exist")
   {
     //Serial.println(validation);
-    Serial.println("6");//Red Led on Auxiliar
+    //Serial.println("6");//Red Led on Auxiliar
   }
   else
   {

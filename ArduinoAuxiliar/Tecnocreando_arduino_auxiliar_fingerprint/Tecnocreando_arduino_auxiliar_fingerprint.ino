@@ -31,6 +31,8 @@ int str_len = 0;
 
 int voidPosition = 0;
 uint8_t positionToStore;
+uint8_t positionFound;
+
 uint8_t id;
 int limitFingerprint = 10;
 String fingerprintId = "";
@@ -333,18 +335,19 @@ uint8_t validateId() {
   switch (p) {
     case FINGERPRINT_OK:
       //Serial.println("Image taken");
+     
       break;
     case FINGERPRINT_NOFINGER:
       //Serial.println("No finger detected");
       return p;
     case FINGERPRINT_PACKETRECIEVEERR:
-      //Serial.println("Communication error");
+      Serial.println("Communication error");
       return p;
     case FINGERPRINT_IMAGEFAIL: 
-      //Serial.println("Imaging error");
+      Serial.println("Imaging error");
       return p;
     default:
-      //Serial.println("Unknown error");
+      Serial.println("Unknown error");
       return p;
   }
 
@@ -384,38 +387,46 @@ uint8_t validateId() {
   p = finger.fingerSearch();
   if (p == FINGERPRINT_OK) {
     //Serial.println("Found a print match!");
-    fingerprintId = String(finger.fingerID);
-    String val = "Valor ID: " + fingerprintId; 
-    
-    //Send data to NodeMCU
-    //Serial.println(fingerprintId);
-    positionToStore = readnumber(5);
-    
-    Serial.println(positionToStore);
+    //fingerprintId = String(finger.fingerID);
+    //String val = "Valor ID: " + fingerprintId; 
+
+    //Send Data to NodeMCU
+    positionFound = readnumber(finger.fingerID);
+    Serial.println(positionFound);
     
     //Serial.println(val);
     //Serial.println(finger.fingerID);
   } else if (p == FINGERPRINT_PACKETRECIEVEERR) {
     //Serial.println("Communication error");
-    return p;
+    //return p;
   } else if (p == FINGERPRINT_NOTFOUND) {
     //Serial.println("Did not find a match");
+
+    //Blynk led to indicate fingerprint was not found
+    digitalWrite(RED_LED, HIGH);
+    delay(300);
+    digitalWrite(RED_LED, LOW);
+    delay(300);
+    digitalWrite(RED_LED, HIGH);
+    delay(300);
+    digitalWrite(RED_LED, LOW);
+    delay(300);
     
     //Send data to NodeMCU
     //NOT FOUND = 7
     //Serial.println("NOT_FOUND");
     
-    return p;
+    //return p;
   } else {
     //Serial.println("Unknown error");
-    return p;
+    //return p;
   }
 
   // found a match!
   //Serial.print("Found ID #"); Serial.print(finger.fingerID);
   //Serial.print(" with confidence of "); Serial.println(finger.confidence);
  
-  //digitalWrite(WHITE_LED, LOW);
+  digitalWrite(WHITE_LED, LOW);
   //return finger.fingerID;
   return true;
 }
@@ -436,9 +447,13 @@ int opt = 0;
   {
     String opcion = "";
    
-    //opcion = String(Serial.readString());
+    //opcion = String(Serial.readString());/Only read first character
+    //Reads all characters until finish
     opcion = Serial.readStringUntil('\n');
+
+    //Convert string to int
     opt = opcion.toInt();
+    
     //opt = opt+"2";
     //Serial.println(opcion.length());
     //Serial.println(opt);
@@ -451,7 +466,9 @@ int opt = 0;
     opcion.toCharArray(url_t, str_len);
    
     //Serial.write(url_t);
-    if(opt == 5)//Card was validated successful
+    
+    //Fingerprint position was validated successful
+    if(opt == 111)
     {  
         digitalWrite(GREEN_LED, HIGH);
         delay(500);
@@ -459,24 +476,30 @@ int opt = 0;
         opt = 0;
        
     }
-    else if(opt == 6)//Card is invalid
+    //Fingerprint position is invalid or without grants
+    else if(opt == 113)
     {
       digitalWrite(RED_LED, HIGH);
       delay(500);
       digitalWrite(RED_LED, LOW);
       opt = 0;
     }
-    else if(opt == 8)//
+    //Turn on LED to indicate user to put his finger. When enroll fingerprint is enable from NodeMCU
+    //This is when a fingerprint is goin to be saved in database
+    else if(opt == 111)
     {
       digitalWrite(GREEN_LED, HIGH);
       opt = 0;
     }
-    else if(opt == 7)
+    //Turn off LED when enroll fingerprint is disabled
+    else if(opt == 112)
     {
       digitalWrite(GREEN_LED, LOW);
       opt = 0;
     }
-    else if(opt == 9)//Conrim card was add
+    
+    //Confirm fingerprint position was added
+    else if(opt == 114)
     {
       digitalWrite(GREEN_LED, HIGH);
       delay(500);
@@ -487,7 +510,8 @@ int opt = 0;
       digitalWrite(GREEN_LED, LOW);
       opt = 0;
     }
-    else if(opt == 10)//Conrim card wasn't add
+    //Confirm fingerprint position was not added
+    else if(opt == 115)
     {
       digitalWrite(RED_LED, HIGH);
       delay(500);
@@ -498,12 +522,14 @@ int opt = 0;
       digitalWrite(RED_LED, LOW);
       opt = 0;
     }
-    else if(opt == 11)//Button lock pressed, waiting for card to validate and lock
+    //Button lock pressed, waiting for fingerprint to validate and lock
+    else if(opt == 116)
     {
       digitalWrite(RED_LED, HIGH);
       opt = 0;
     }
-    else if(opt == 12)//TURN OFF waiting for card to validate and lock
+    //TURN OFF waiting for fingerprint to validate and lock
+    else if(opt == 117)
     {
       digitalWrite(RED_LED, LOW);
       opt = 0;

@@ -307,16 +307,16 @@ BLYNK_WRITE(V4)
   if(flagWaitingCardToLock == true and doc["message"] == "Enroll Succesed")
   {
     secureDoor(true);
-    Serial.println("12");//Turn off Led waiting card
+    //Serial.println("12");//Turn off Led waiting card
   }
   else if(flagWaitingCardToLock == true and doc["message"] == "Card does not exist")
   {
-    Serial.println("10");
+    //Serial.println("10");
     
   }
   else if(flagWaitingCardToLock == false and doc["message"] == "Enroll Succesed")
   {
-    Serial.println("5");//Turn on Green led on Arduino
+    //Serial.println("5");//Turn on Green led on Arduino
     secureDoor(false);
     openDoor(doc["message"]);  
   }
@@ -340,13 +340,13 @@ BLYNK_WRITE(V5)
   {
     //To Enroll Card
     flagEventCard = false;  
-    Serial.println("8");//Turn on Led on Arudino Auxiliar
+    Serial.println("111");//Turn on Led on Arudino Auxiliar
   }
   else
   {
     //To Enroll Entry
     flagEventCard = true;
-    Serial.println("7");//Turn off Led on Arudino Auxiliar
+    Serial.println("112");//Turn off Led on Arudino Auxiliar
     
   }
 
@@ -362,13 +362,13 @@ BLYNK_WRITE(V6)
 
   if(doc["message"] == "card enroll")
   {
-     Serial.println("9");//Turn off Led on Arudino Auxiliar
+     //Serial.println("9");//Turn off Led on Arudino Auxiliar
      Blynk.virtualWrite(V5, 0);//Turn off button on App
      flagEventCard = true;
   }
   else
   {
-    Serial.println("10");//Turn off Led on Arudino Auxiliar
+    //Serial.println("10");//Turn off Led on Arudino Auxiliar
   }
  
   Serial.println(webhookdata);
