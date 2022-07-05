@@ -57,7 +57,7 @@ boolean stateButtonLock = false;
 unsigned long previousMillis = 0;//will store last time LED was updated
 
 //constants won't change :
-const long interval = 5000;// interval at which to blink (milliseconds)
+const long interval = 15000;// interval at which to blink (milliseconds)
 int flag = 1;
 
 
@@ -307,18 +307,23 @@ BLYNK_WRITE(V4)
   if(flagWaitingCardToLock == true and doc["message"] == "Enroll Succesed")
   {
     secureDoor(true);
-    //Serial.println("12");//Turn off Led waiting card
+    Serial.println("110");//Turn on green led on Arduino
   }
   else if(flagWaitingCardToLock == true and doc["message"] == "Card does not exist")
   {
-    //Serial.println("10");
+    Serial.println("113");//Turn on red led on Arduino
+    
+  }
+  else if(flagWaitingCardToLock == false and doc["message"] == "Card does not exist")
+  {
+    Serial.println("113");//Turn on red led on Arduino
     
   }
   else if(flagWaitingCardToLock == false and doc["message"] == "Enroll Succesed")
   {
-    //Serial.println("5");//Turn on Green led on Arduino
+    Serial.println("110");//Turn on green led on Arduino
     secureDoor(false);
-    openDoor(doc["message"]);  
+    openDoor(doc["message"]);
   }
   else {
     openDoor(doc["message"]);
@@ -368,10 +373,11 @@ BLYNK_WRITE(V6)
   }
   else
   {
+    Serial.println(webhookdata);
     //Serial.println("10");//Turn off Led on Arudino Auxiliar
   }
  
-  Serial.println(webhookdata);
+  //Serial.println(webhookdata);
   //Serial.printf(doc[0]);
 }
 
@@ -407,6 +413,7 @@ void loop() {
       }
       else if(flagEventCard == false)
       {
+        //Enroll
         Blynk.virtualWrite(V6, option);  
       }
       
@@ -419,7 +426,7 @@ void loop() {
       }*/
     }
 
-  if(flagWaitingCardToLock == true)
+  /*if(flagWaitingCardToLock == true)
   {
     unsigned long currentMillis = millis();
     
@@ -438,8 +445,8 @@ void loop() {
       flagWaitingCardToLock = false;  */
       //Serial.println("C:" + String(flag));
            
-    }
-  }
+    //}
+  //}
   
   
     
